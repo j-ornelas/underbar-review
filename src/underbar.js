@@ -380,6 +380,17 @@
   // Calls the method named by functionOrKey on each value in the list.
   // Note: You will need to learn a bit about .apply to complete this.
   _.invoke = function(collection, functionOrKey, args) {
+    var output = [];
+    if (typeof functionOrKey === 'function') {
+      for (var i = 0; i < collection.length; i++ ) {
+        output.push(functionOrKey.call(collection[i], args));
+      }
+    } else {
+      for (var j = 0; j < collection.length; j++) {
+        output.push(collection[j][functionOrKey]());
+      }
+    }
+    return output;
   };
 
   // Sort the object's values by a criterion produced by an iterator.
@@ -394,7 +405,23 @@
   //
   // Example:
   // _.zip(['a','b','c','d'], [1,2,3]) returns [['a',1], ['b',2], ['c',3], ['d',undefined]]
-  _.zip = function() {
+  _.zip = function() { 
+    var args = Array.prototype.slice.call(arguments);
+    var output = [];
+    var max = 0;
+    for (var i = 0; i < args.length; i++) {
+      if (args[i].length > max) {
+        max = args[i].length;
+      } 
+    }
+    for (var j = 0; j < max; j++) {
+      var tempArr = [];
+      for (var h = 0; h < args.length; h++) {
+        tempArr.push(args[h][j]);
+      }
+      output.push(tempArr);
+    }
+    return output;
   };
 
   // Takes a multidimensional array and converts it to a one-dimensional array.
@@ -402,16 +429,59 @@
   //
   // Hint: Use Array.isArray to check if something is an array
   _.flatten = function(nestedArray, result) {
+    var output = [];
+    var search = function(element) {
+      for (var i = 0; i < element.length; i++) {
+        if (!Array.isArray(element[i])) {
+          output.push(element[i]);
+        } else {
+          search(element[i]);
+        }
+      }
+    };
+    search(nestedArray);
+    return output;
+
   };
 
   // Takes an arbitrary number of arrays and produces an array that contains
   // every item shared between all the passed-in arrays.
   _.intersection = function() {
+    var output = [];
+    var args = Array.prototype.slice.call(arguments);
+    var first = args[0];
+    for (var i = 0; i < first.length; i++ ) {
+      var included = true;
+      for (var j = 0; j < args.length; j++) {
+        if (!_.contains(args[j], first[i])) {
+          included = false;
+        }
+      }
+      if (included === true) {
+        output.push(first[i]);
+      }
+    }
+    return output;
   };
 
   // Take the difference between one array and a number of other arrays.
   // Only the elements present in just the first array will remain.
   _.difference = function(array) {
+    var output = [];
+    var args = Array.prototype.slice.call(arguments);
+    var first = args[0];
+    for (var i = 0; i < first.length; i++ ) {
+      var included = true;
+      for (var j = 1; j < args.length; j++) {
+        if (_.contains(args[j], first[i])) {
+          included = false;
+        }
+      }
+      if (included === true) {
+        output.push(first[i]);
+      }
+    }
+    return output;
   };
 
   // Returns a function, that, when invoked, will only be triggered at most once
